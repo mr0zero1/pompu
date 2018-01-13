@@ -18,6 +18,7 @@ class PompuAPI:
         self.key = key
         self.secret = secret
 
+
     def get_history(self, market, limit=50):
         path = "%s/historicalTrades" % self.BASE_URL_V1
         params = {"symbol": market, "limit": limit}
@@ -28,8 +29,13 @@ class PompuAPI:
         params = {"symbol": market, "limit": limit}
         return self._get_no_sign(path, params)
         
-    def get_kline(self, market):
+    def get_klines(self, market, interval):
         path = "%s/klines" % self.BASE_URL_V1
+        params = {"symbol": market, "interval": interval}
+        return self._get_no_sign(path, params)
+
+    def get_aggTrades(self, market):
+        path = "%s/aggTrades" % self.BASE_URL_V1
         params = {"symbol": market}
         return self._get_no_sign(path, params)
         
@@ -51,6 +57,10 @@ class PompuAPI:
         path = "%s/openOrders" % self.BASE_URL_V1
         params = {"symbol": symbol}
         return self._get(path, params)
+
+    def get_exchangeInfo(self):
+        path = "%s/exchangeInfo" % self.BASE_URL_V1
+        return self._get_no_sign(path)
 
     def get_server_time(self):
         path = "%s/time" % self.BASE_URL_V1
@@ -95,7 +105,8 @@ class PompuAPI:
     def _get_no_sign(self, path, params={}):
         query = urlencode(params)
         url = "%s?%s" % (path, query)
-        return requests.get(url, timeout=30, verify=True).json()
+        header = {"X-MBX-APIKEY": self.key}
+        return requests.get(url, headers=header, timeout=30, verify=True).json()
     
     def _sign(self, params={}):
         data = params.copy()
